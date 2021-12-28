@@ -1,6 +1,7 @@
 from typing import Tuple
 import pygame
 
+
 class Button():
     position: Tuple[int, int]
     text_pos: Tuple[int, int]
