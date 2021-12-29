@@ -20,12 +20,15 @@ class Menu():
         start_btn = Button(self.screen, 'Start', 'arial', 20, (255, 255, 255),
                            (200, 0, 0), (WIDTH//2, HEIGHT//3), (80, 60), True, [self.start_game])
         exit_btn = Button(self.screen, 'quit', 'arial', 20, (255, 255, 255),
-                          (200, 0, 0), (WIDTH//2, HEIGHT//2), (80, 60), True, [pygame.quit, sys.exit])
+                          (200, 0, 0), (WIDTH//2, HEIGHT//2), (80, 60), True, [self.quit_game])
 
         self.buttons = [start_btn, exit_btn]
 
     def start_game(self):
         pygame.event.post(pygame.event.Event(EventType.START.value))
+
+    def quit_game(self):
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
 
     def __del__(self):
         for btn in self.buttons:

@@ -6,21 +6,21 @@ from Rain import Rain
 from Utils.Events import EventType
 
 GAMEOVER = False
+clock = pygame.time.Clock()
 
 def main():
-    state = 0
+    clock.tick(60)
     screen = Menu()
     
     while True:
         screen.update()
+
         for event in pygame.event.get():
             if event.type == EventType.START.value:
-                state = 1
                 del screen
                 screen = Rain()
                 
             elif event.type == EventType.GAMEOVER.value:
-                state = 0
                 del screen
                 screen = Menu()
                 
