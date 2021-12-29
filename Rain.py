@@ -5,6 +5,19 @@ from Components.Button import Button
 from typing import List
 from Utils.Events import EventType
 
+class PlayerHP:
+    lifePoints: int
+    
+    def __init__(self, lifePoints=3) -> None:
+        self.lifePoints = lifePoints
+
+    def dec(self):
+        self.lifePoints -= 1
+    
+    def inc(self):
+        self.lifePoints += 1
+    
+
 class Drop(pygame.sprite.Sprite):
     def __init__(self,image_path):
         super().__init__()
@@ -17,10 +30,8 @@ class Drop(pygame.sprite.Sprite):
         self.rect.center = [self.rect.center[0],self.rect.center[1]+1]
     
     def __del__(self):
-        #implementar depois o meme de baixar a vida....
-        pass
+        pygame.event.post(pygame.event.Event(EventType.DAMAGE.value))
     
-
 class Ground(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -44,12 +55,12 @@ class Rain():
         self.groundGroup = pygame.sprite.Group()
         self.ground = Ground()
         self.groundGroup.add(self.ground)
+        self.lifePoints = PlayerHP(5)
         
     def __del__(self):
         pass
 
     def update(self):
-
         self.screen.fill((0, 50, 255))
         self.dropGroup.draw(self.screen)
         drop = Drop("assets/Drop3.png")
@@ -57,6 +68,19 @@ class Rain():
         self.dropGroup.update()
         self.groundGroup.draw(self.screen)
         pygame.sprite.spritecollide(self.ground,self.dropGroup,True)
+        for event in pygame.event.get():
+            if event.type == EventType.DAMAGE.value:
+                self.lifePoints.dec()
+                print(self.lifePoints.lifePoints)
+            
+        if self.lifePoints.lifePoints == 0:
+            pygame.event.post(pygame.event.Event(EventType.GAMEOVER.value))
+            print("Alterei o gameState!")
+            
 
-
+class hpBar():
+    def __init__(self) -> None:
+        pass
+        
+    pass
         

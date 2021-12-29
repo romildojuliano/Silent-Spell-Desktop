@@ -13,8 +13,8 @@ class Menu():
         pygame.init()
 
         infoObject = pygame.display.Info()
-        WIDTH = infoObject.current_w // 2
-        HEIGHT = infoObject.current_h // 2
+        WIDTH = infoObject.current_w 
+        HEIGHT = infoObject.current_h
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
         start_btn = Button(self.screen, 'Start', 'arial', 20, (255, 255, 255),
