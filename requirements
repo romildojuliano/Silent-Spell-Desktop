@@ -1,1 +1,7 @@
 pygame
+opencv-python
+mediapipe
+numpy
+joblib
+Pillow
+sklearn
