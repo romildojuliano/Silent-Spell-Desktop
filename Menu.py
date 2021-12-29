@@ -27,7 +27,7 @@ class Menu():
     def start_game(self):
         pygame.event.post(pygame.event.Event(EventType.START.value))
 
-    def destroy_all(self):
+    def __del__(self):
         for btn in self.buttons:
             del btn
 

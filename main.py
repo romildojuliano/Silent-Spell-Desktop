@@ -2,26 +2,22 @@ import sys
 import pygame
 from Components.Button import Button
 from Menu import Menu
+from Rain import Rain
 from Utils.Events import EventType
 
 
 def main():
     state = 0
-    menu = Menu()
+    screen = Menu()
+    
     while True:
-        match state:
-            case 0:
-                menu.update()
-            case 1:
-                # jogo
-                pass
 
+        screen.update()
         for event in pygame.event.get():
-            print('minha pica')
             if event.type == EventType.START.value:
                 state = 1
-                menu.destroy_all()
-                menu.update()
+                del screen
+                screen = Rain()
 
             if event.type == pygame.QUIT:
                 pygame.quit()
