@@ -20,7 +20,7 @@ hands = mp_hands.Hands(
     min_detection_confidence=0.2, min_tracking_confidence=0.5,max_num_hands=1)
 cap = cv2.VideoCapture(0)
 
-model = load('silentSpellPrototipo.joblib') 
+model = load('pedraPapelTesoura.joblib') 
 
 while cap.isOpened():
   success, image = cap.read()
