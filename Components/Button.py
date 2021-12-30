@@ -1,5 +1,6 @@
 from typing import Tuple
 import pygame
+import Utils.Utils as Utils
 
 
 class Button():
@@ -41,8 +42,8 @@ class Button():
                          0)
             pygame.draw.rect(self.screen, off_color, self.rect)
 
-        draw_text(self.text, self.font, self.text_color,
-                  self.screen, self.text_pos)
+        Utils.draw_text(self.text, self.font, self.text_color,
+                  self.screen, self.text_pos,True)
 
     def clicked(self):
         mx, my = pygame.mouse.get_pos()
@@ -51,7 +52,4 @@ class Button():
                 event()
 
 
-def draw_text(text, font, color, surface, position):
-    textobj = font.render(text, 1, color)
-    textrect = textobj.get_rect(center=position)
-    surface.blit(textobj, textrect)
+

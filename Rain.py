@@ -1,10 +1,8 @@
 from random import randint
-import sys
 import pygame
-from Components.Button import Button
-from typing import List
 from Utils.Events import EventType
 import Utils.HandsHandler as HH
+import Utils.Utils as Utils
 import random
 
 class PlayerHP():
@@ -41,7 +39,7 @@ class Drop(pygame.sprite.Sprite):
 
     def update(self):    
         self.rect.center = (self.rect.center[0],self.rect.center[1]+2)
-        draw_text(self.letter, self.font, (0,0,0), self.screen, (self.rect.center[0], self.rect.center[1]+30), True)
+        Utils.draw_text(self.letter, self.font, (0,0,0), self.screen, (self.rect.center[0], self.rect.center[1]+30), True)
 
     def __del__(self):
         global player
@@ -99,7 +97,7 @@ class Rain():
         
         self.screen.blit(pygame.surfarray.make_surface(image),(200,100))
         if choosenLetter:
-            draw_text(choosenLetter, self.font, (255,255,255),self.screen, (100,100), False)
+            Utils.draw_text(choosenLetter, self.font, (255,255,255),self.screen, (100,100), False)
             for drop in self.dropGroup:
                     if drop.letter == choosenLetter:
                         drop.safe = True
@@ -113,7 +111,7 @@ class Rain():
         self.groundGroup.draw(self.screen)
         self.dropGroup.update()
         pygame.sprite.spritecollide(self.ground,self.dropGroup,True)
-        draw_text(f'Vida: {player.lifePoints}', self.font, (255,255,255),self.screen, (0,0), False)
+        Utils.draw_text(f'Vida: {player.lifePoints}', self.font, (255,255,255),self.screen, (0,0), False)
         
 
 class hpBar():
@@ -122,10 +120,3 @@ class hpBar():
         
     pass
         
-def draw_text(text, font, color, surface, position, center):
-    textobj = font.render(text, 1, color)
-    if center:
-        textrect = textobj.get_rect(center = position)
-    else:
-        textrect = textobj.get_rect(topleft = position)
-    surface.blit(textobj, textrect)
