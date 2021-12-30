@@ -3,6 +3,7 @@ import pygame
 from Components.Button import Button
 from Menu import Menu
 from Rain import Rain
+from RockPaperScissors import rockPaperScissors
 from Utils.Events import EventType
 
 GAMEOVER = False
@@ -18,7 +19,7 @@ def main():
         for event in pygame.event.get():
             if event.type == EventType.START.value:
                 del screen
-                screen = Rain()
+                screen = rockPaperScissors()#Rain()
                 
             elif event.type == EventType.GAMEOVER.value:
                 del screen
