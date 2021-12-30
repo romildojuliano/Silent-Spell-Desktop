@@ -4,25 +4,8 @@ import pygame
 from Components.Button import Button
 from typing import List
 from Utils.Events import EventType
+import Utils.HandsHandler as HH
 import random
-
-import cv2
-import mediapipe as mp
-mp_drawing = mp.solutions.drawing_utils
-mp_hands = mp.solutions.hands
-from joblib import load
-import math
-import numpy as np
-
-def subLandmarks(v1,v2):
-    return [v1.x-v2.x,v1.y-v2.y,v1.z-v2.z]
-
-def angle(s,c,e):
-    Js = subLandmarks(s,c)
-    #Jc = subLandmarks(c,c)
-    Je = subLandmarks(e,c)
-    return math.acos(np.inner(Js,Je)/(math.sqrt(np.inner(Js,Js))*math.sqrt(np.inner(Je,Je))))
-
 
 class PlayerHP():
     
@@ -96,9 +79,9 @@ class Rain():
         self.frames = 0
         player.reset()
 
-        self.hands = mp_hands.Hands(min_detection_confidence=0.2, min_tracking_confidence=0.5,max_num_hands=1)
-        self.cap = cv2.VideoCapture(0)
-        self.model = load('silentSpellPrototipo.joblib') 
+        self.hands = HH.mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5,max_num_hands=1)
+        self.cap = HH.cv2.VideoCapture(0)
+        self.model = HH.load('silentSpellPrototipo.joblib') 
         # self.lifePoints = PlayerHP(5)
         
     def __del__(self):
@@ -111,33 +94,16 @@ class Rain():
         global player
         self.screen.fill((0, 50, 255))
         
-        if(self.cap.isOpened()):
-            success, image = self.cap.read()
-            image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-            image.flags.writeable = False
-            results = self.hands.process(image)
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            if results.multi_hand_landmarks:
-                points = []
-                trincas = [[0,1,2],[1,2,3],[2,3,4],[5,6,7],[6,7,8],[9,10,11],[10,11,12],[13,14,15],[14,15,16],[17,18,19],[18,19,20],[8,0,20],[12,0,20],[4,0,16],[16,0,20]]
-                landmarks = list(results.multi_hand_landmarks[0].landmark)
-                for trinca in trincas:
-                    a = angle(landmarks[trinca[0]],landmarks[trinca[1]],landmarks[trinca[2]])
-                    points.append(a)
-                choosenLetter = self.model.predict([points])[0]
-                draw_text(choosenLetter, self.font, (255,255,255),self.screen, (100,100), False)
-                for drop in self.dropGroup:
+        image, choosenLetter = HH.apllyMediaPipe(self.cap,self.hands,self.model)
+
+        
+        self.screen.blit(pygame.surfarray.make_surface(image),(200,100))
+        if choosenLetter:
+            draw_text(choosenLetter, self.font, (255,255,255),self.screen, (100,100), False)
+            for drop in self.dropGroup:
                     if drop.letter == choosenLetter:
                         drop.safe = True
                         drop.kill()
-                for hand_landmarks in results.multi_hand_landmarks:
-                    mp_drawing.draw_landmarks(
-                        image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-            image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-            image=np.rot90(image)
-            self.screen.blit(pygame.surfarray.make_surface(image),(200,100))
-        
         self.dropGroup.draw(self.screen)
         if self.frames % 100 == 0:
             # print(2)
