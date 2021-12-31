@@ -42,7 +42,21 @@ while cap.isOpened():
   image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
   if results.multi_hand_landmarks:
     points = []
-    trincas = [[0,1,2],[1,2,3],[2,3,4],[5,6,7],[6,7,8],[9,10,11],[10,11,12],[13,14,15],[14,15,16],[17,18,19],[18,19,20],[8,0,20],[12,0,20],[4,0,16],[16,0,20]]
+    trincas = [[0,1,2],
+               [1,2,3],
+               [2,3,4],
+               [5,6,7],
+               [6,7,8],
+               [9,10,11],
+               [10,11,12],
+               [13,14,15],
+               [14,15,16],
+               [17,18,19],
+               [18,19,20],
+               [8,0,20],
+               [12,0,20],
+               [4,0,16],
+               [16,0,20]]
     landmarks = list(results.multi_hand_landmarks[0].landmark)
     for trinca in trincas:
         a = angle(landmarks[trinca[0]],landmarks[trinca[1]],landmarks[trinca[2]])
