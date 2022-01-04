@@ -42,25 +42,31 @@ class PlayerHP():
 player = PlayerHP(5)
 score = 0
 
+
 class Drop(pygame.sprite.Sprite):
-    def __init__(self, image_path, screen):
+    def __init__(self, image_path, screen, drop_group):
         super().__init__()
         self.image = pygame.transform.scale(
-            pygame.image.load(image_path), (30*5, 40*5))
+            pygame.image.load(image_path), (30*3, 40*3))
         self.rect = self.image.get_rect()
         self.size = self.image.get_size()
-        self.rect.center = (
-            random.randint(50, pygame.display.Info().current_w-50), 50)
+
+        for _ in range(50):
+            self.rect.center = (
+                random.randint(50, pygame.display.Info().current_w-50), random.randint(-100, 50))
+            if not pygame.sprite.spritecollide(self, drop_group, False):
+                break
         self.letter = random.choice(
             ["A", "B", "C", "D", "E", "I", "L", "M", "N", "O", "R", "S", "U", "V", "W"])
-        self.font = self.font = pygame.font.SysFont('arial', 60)
+        self.font = self.font = pygame.font.SysFont('arial', 40)
         self.screen = screen
         self.safe = False
 
     def update(self):
-        self.rect.center = (self.rect.center[0], self.rect.center[1]+2)
+        global score
+        self.rect.center = (self.rect.center[0], self.rect.center[1] + 2 + score/100)
         draw_text(self.letter, self.font, (0, 0, 0), self.screen,
-                  (self.rect.center[0], self.rect.center[1]+30), True)
+                  (self.rect.center[0], self.rect.center[1] + 20), True)
 
     def __del__(self):
         global player, score
@@ -102,7 +108,7 @@ class Rain():
         self.healthGroup = pygame.sprite.Group()
         self.ground = Ground()
         self.groundGroup.add(self.ground)
-        self.health = [hpBar(i) for i in range(player.fullLife)]
+        self.health = [Heart(i) for i in range(player.fullLife)]
         for heart in self.health:
             self.healthGroup.add(heart)
         player.reset()
@@ -120,7 +126,7 @@ class Rain():
     def update(self):
 
         global player
-        self.screen.fill((135 , 206, 235))
+        self.screen.fill((135, 206, 235))
 
         if(self.cap.isOpened()):
             success, image = self.cap.read()
@@ -155,8 +161,9 @@ class Rain():
             self.screen.blit(pygame.surfarray.make_surface(image), (0, 0))
 
         self.dropGroup.draw(self.screen)
-        if score < 900 and random.random() < score/1000 + 0.1:
-            drop = Drop("assets/Drop3.png", self.screen)
+
+        if random.random() < min(score/1000 + 0.05, 0.6):
+            drop = Drop("assets/Drop3.png", self.screen, self.dropGroup)
             self.dropGroup.add(drop)
 
         self.groundGroup.draw(self.screen)
@@ -170,7 +177,7 @@ class Rain():
                   (255, 255, 255), self.screen, (WIDTH - 100, 30), True)
 
 
-class hpBar(pygame.sprite.Sprite):
+class Heart(pygame.sprite.Sprite):
     def __init__(self, id):
         super().__init__()
         self.frames = []
