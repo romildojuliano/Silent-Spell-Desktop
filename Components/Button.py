@@ -18,17 +18,22 @@ class Button():
         self.font = pygame.font.SysFont(font, font_size)
         self.text_color = text_color
         self.button_color = button_color
-        if center:
-            self.position = (position[0] - size[0]//2,
-                             position[1] - size[1]//2)
+        self.size = size
+        self.center = center
+        self.set_pos(position)
+        self.events = events
+
+    def set_pos(self, position):
+        if self.center:
+            self.position = (position[0] - self.size[0]//2,
+                             position[1] - self.size[1]//2)
         else:
             self.position = position
-        self.size = size
+
         self.text_pos = (self.position[0] + self.size[0]//2,
                          self.position[1] + self.size[1]//2)
-        self.center = center
-        self.events = events
-        self.rect = pygame.Rect(self.position, size)
+        
+        self.rect = pygame.Rect(self.position, self.size)
 
     def draw(self):
         mx, my = pygame.mouse.get_pos()
@@ -42,7 +47,7 @@ class Button():
             pygame.draw.rect(self.screen, off_color, self.rect)
 
         draw_text(self.text, self.font, self.text_color,
-                  self.screen, self.text_pos)
+                  self.screen, self.text_pos, True)
 
     def clicked(self):
         mx, my = pygame.mouse.get_pos()
@@ -51,7 +56,10 @@ class Button():
                 event()
 
 
-def draw_text(text, font, color, surface, position):
+def draw_text(text, font, color, surface, position, center):
     textobj = font.render(text, 1, color)
-    textrect = textobj.get_rect(center=position)
+    if center:
+        textrect = textobj.get_rect(center=position)
+    else:
+        textrect = textobj.get_rect(topleft=position)
     surface.blit(textobj, textrect)
