@@ -12,13 +12,13 @@ class Button():
     button_color: Tuple[int, int, int]
     center: bool
 
-    def __init__(self, screen, text, font, font_size, text_color, button_color, position, size, center, events):
+    def __init__(self, screen, text, font, font_size, text_color, button_color, position, center, events):
         self.screen = screen
         self.text = text
         self.font = pygame.font.SysFont(font, font_size)
         self.text_color = text_color
         self.button_color = button_color
-        self.size = size
+        self.size = self.get_size(text)
         self.center = center
         self.set_pos(position)
         self.events = events
@@ -32,8 +32,13 @@ class Button():
 
         self.text_pos = (self.position[0] + self.size[0]//2,
                          self.position[1] + self.size[1]//2)
-        
+
         self.rect = pygame.Rect(self.position, self.size)
+
+    def get_size(self, text):
+        text_obj = self.font.render(text, 1, (0, 0, 0))
+        text_rect = text_obj.get_rect()
+        return (text_rect[2]+25, text_rect[3]+25)
 
     def draw(self):
         mx, my = pygame.mouse.get_pos()
@@ -57,9 +62,9 @@ class Button():
 
 
 def draw_text(text, font, color, surface, position, center):
-    textobj = font.render(text, 1, color)
+    text_obj = font.render(text, 1, color)
     if center:
-        textrect = textobj.get_rect(center=position)
+        text_rect = text_obj.get_rect(center=position)
     else:
-        textrect = textobj.get_rect(topleft=position)
-    surface.blit(textobj, textrect)
+        text_rect = text_obj.get_rect(topleft=position)
+    surface.blit(text_obj, text_rect)

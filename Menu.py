@@ -23,9 +23,9 @@ class Menu():
                            'height': HEIGHT}
 
         start_btn = Button(self.screen, 'Start', 'arial', 20, (255, 255, 255),
-                           (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//3), (80, 60), True, [self.start_game])
+                           (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//3), True, [self.start_game])
         exit_btn = Button(self.screen, 'quit', 'arial', 20, (255, 255, 255),
-                          (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//2), (80, 60), True, [self.quit_game])
+                          (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//2), True, [self.quit_game])
 
         self.buttons = [start_btn, exit_btn]
 
@@ -36,9 +36,9 @@ class Menu():
         # self.screen = pygame.display.set_mode(
         #     (self.dimensions['width'], self.dimensions['height']), )
         rain_button = Button(self.screen, 'Rain Game', 'arial', 20, (255, 255, 255),
-                             (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//3), (80, 60), True, [self.start_rain_game])
+                             (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//3), True, [self.start_rain_game])
         jokenpo_button = Button(self.screen, 'Jokenpo', 'arial', 20, (255, 255, 255),
-                                (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//2), (80, 60), True, [self.start_jokenpo])
+                                (200, 0, 0), (self.dimensions['width']//2, self.dimensions['height']//2), True, [self.start_jokenpo])
         self.buttons = [rain_button, jokenpo_button]
 
     def quit_game(self):
