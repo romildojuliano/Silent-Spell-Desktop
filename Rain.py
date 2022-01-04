@@ -4,6 +4,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import pygame
+import sys
 from joblib import load
 from Utils.Events import EventType
 
@@ -22,25 +23,27 @@ def angle(s, c, e):
     return math.acos(np.inner(Js, Je)/(math.sqrt(np.inner(Js, Js))*math.sqrt(np.inner(Je, Je))))
 
 
-class PlayerHP():
+class Player():
 
     def __init__(self, lifePoints=3) -> None:
         self.lifePoints = lifePoints
         self.fullLife = lifePoints
+        self.score = 0
 
     def dec(self):
         # print(f'{self.lifePoints=}')
         self.lifePoints -= 1
+        if self.lifePoints == 0:
+            self.reset()
+            print('--------------------GAME OVER--------------------')
+            pygame.event.post(pygame.event.Event(EventType.GAMEOVER.value))
 
     def inc(self):
         self.lifePoints += 1
 
     def reset(self):
         self.lifePoints = self.fullLife
-
-
-player = PlayerHP(5)
-score = 0
+        self.score = 0
 
 
 class Drop(pygame.sprite.Sprite):
@@ -62,22 +65,18 @@ class Drop(pygame.sprite.Sprite):
         self.screen = screen
         self.safe = False
 
-    def update(self):
+    def update(self, player):
         global score
-        self.rect.center = (self.rect.center[0], self.rect.center[1] + 2 + score/100)
+        self.rect.center = (
+            self.rect.center[0], self.rect.center[1] + 2 + player.score/100)
         draw_text(self.letter, self.font, (0, 0, 0), self.screen,
                   (self.rect.center[0], self.rect.center[1] + 20), True)
 
     def __del__(self):
-        global player, score
         if(self.safe):
-            score += 1
+            pygame.event.post(pygame.event.Event(EventType.SCORE.value))
         else:
-            player.dec()
-            if player.lifePoints == 0:
-                print('--------------------GAME OVER-------------------')
-                score = 0
-                pygame.event.post(pygame.event.Event(EventType.GAMEOVER.value))
+            pygame.event.post(pygame.event.Event(EventType.DAMAGE.value))
 
 
 class Ground(pygame.sprite.Sprite):
@@ -94,24 +93,24 @@ class Rain():
     screen: pygame.surface.Surface
 
     def __init__(self):
-        global player, font
         pygame.init()
-        self.font = pygame.font.SysFont('arial', 30)
-        infoObject = pygame.display.Info()
-        # // 2 esse 2 é necessario? tive que tirar por que tava bugando....
-        WIDTH = infoObject.current_w
-        HEIGHT = infoObject.current_h  # // 2
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
         pygame.display.set_caption('Rain Game')
+        infoObject = pygame.display.Info()
+        WIDTH = infoObject.current_w
+        HEIGHT = infoObject.current_h
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.font = pygame.font.SysFont('arial', 30)
+
+        self.player = Player(5)
         self.dropGroup = pygame.sprite.Group()
         self.groundGroup = pygame.sprite.Group()
         self.healthGroup = pygame.sprite.Group()
         self.ground = Ground()
         self.groundGroup.add(self.ground)
-        self.health = [Heart(i) for i in range(player.fullLife)]
-        for heart in self.health:
+        health = [Heart(i) for i in range(self.player.fullLife)]
+        for heart in health:
             self.healthGroup.add(heart)
-        player.reset()
 
         self.hands = mp_hands.Hands(
             min_detection_confidence=0.2, min_tracking_confidence=0.5, max_num_hands=1)
@@ -124,10 +123,14 @@ class Rain():
         self.cap.release()
 
     def update(self):
-
-        global player
         self.screen.fill((135, 206, 235))
+        self.check_letter()
+        self.add_drop()
+        self.update_sprites()
+        self.check_events()
+        self.draw_score()
 
+    def check_letter(self):
         if(self.cap.isOpened()):
             success, image = self.cap.read()
             image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -160,20 +163,33 @@ class Rain():
             image = np.rot90(image)
             self.screen.blit(pygame.surfarray.make_surface(image), (0, 0))
 
-        self.dropGroup.draw(self.screen)
-
-        if random.random() < min(score/1000 + 0.05, 0.6):
-            drop = Drop("assets/Drop3.png", self.screen, self.dropGroup)
+    def add_drop(self):
+        if random.random() < min(self.player.score/1000 + 0.03, 0.5):
+            drop = Drop("assets/Drop3.png", self.screen,
+                        self.dropGroup)
             self.dropGroup.add(drop)
 
-        self.groundGroup.draw(self.screen)
-        self.dropGroup.update()
-        pygame.sprite.spritecollide(self.ground, self.dropGroup, True)
+    def check_events(self):
+        for event in pygame.event.get():
+            if event.type == EventType.DAMAGE.value:
+                self.player.dec()
+            if event.type == EventType.SCORE.value:
+                self.player.score += 1
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-        self.healthGroup.update()
+    def update_sprites(self):
+        self.dropGroup.draw(self.screen)
+        self.dropGroup.update(self.player)
+        self.groundGroup.draw(self.screen)
+        pygame.sprite.spritecollide(self.ground, self.dropGroup, True)
+        self.healthGroup.update(self.player)
         self.healthGroup.draw(self.screen)
-        WIDTH, HEIGHT = self.screen.get_size()
-        draw_text(f'Score: {score}', self.font,
+
+    def draw_score(self):
+        WIDTH, _ = self.screen.get_size()
+        draw_text(f'Score: {self.player.score}', self.font,
                   (255, 255, 255), self.screen, (WIDTH - 100, 30), True)
 
 
@@ -194,7 +210,7 @@ class Heart(pygame.sprite.Sprite):
         self.rect.topleft = (id * 68, 10)
         self.id = id
 
-    def update(self):
+    def update(self, player):
         if player.lifePoints <= self.id:
             self.image = self.frames[1]
 
