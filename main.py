@@ -7,7 +7,7 @@ from Utils.Events import EventType
 
 GAMEOVER = False
 clock = pygame.time.Clock()
-
+screen = pygame.display.set_mode((1000, 700))
 
 def main():
     clock.tick(60)

@@ -13,8 +13,12 @@ class Menu():
     def __init__(self):
         pygame.init()
 
-        self.screen = pygame.display.set_mode((600, 600), pygame.RESIZABLE)
-        WIDTH, HEIGHT = self.screen.get_size()
+        infoObject = pygame.display.Info()
+        WIDTH = infoObject.current_w
+        HEIGHT = infoObject.current_h
+
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+        pygame.display.set_caption('Silent Spell')
         self.dimensions = {'width': WIDTH,
                            'height': HEIGHT}
 

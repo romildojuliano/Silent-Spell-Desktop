@@ -39,8 +39,8 @@ class PlayerHP():
         self.lifePoints = self.fullLife
 
 
-player = PlayerHP(50)
-
+player = PlayerHP(5)
+score = 0
 
 class Drop(pygame.sprite.Sprite):
     def __init__(self, image_path, screen):
@@ -63,11 +63,14 @@ class Drop(pygame.sprite.Sprite):
                   (self.rect.center[0], self.rect.center[1]+30), True)
 
     def __del__(self):
-        global player
-        if(not self.safe):
+        global player, score
+        if(self.safe):
+            score += 1
+        else:
             player.dec()
             if player.lifePoints == 0:
                 print('--------------------GAME OVER-------------------')
+                score = 0
                 pygame.event.post(pygame.event.Event(EventType.GAMEOVER.value))
 
 
@@ -93,10 +96,15 @@ class Rain():
         WIDTH = infoObject.current_w
         HEIGHT = infoObject.current_h  # // 2
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption('Rain Game')
         self.dropGroup = pygame.sprite.Group()
         self.groundGroup = pygame.sprite.Group()
+        self.healthGroup = pygame.sprite.Group()
         self.ground = Ground()
         self.groundGroup.add(self.ground)
+        self.health = [hpBar(i) for i in range(player.fullLife)]
+        for heart in self.health:
+            self.healthGroup.add(heart)
         self.frames = 0
         player.reset()
 
@@ -114,7 +122,7 @@ class Rain():
 
         self.frames += 1
         global player
-        self.screen.fill((0, 50, 255))
+        self.screen.fill((135 , 206, 235))
 
         if(self.cap.isOpened()):
             success, image = self.cap.read()
@@ -142,9 +150,11 @@ class Rain():
                 for hand_landmarks in results.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(
                         image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            image = cv2.flip(image, 1)
+            image = cv2.resize(image, self.screen.get_size())
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             image = np.rot90(image)
-            self.screen.blit(pygame.surfarray.make_surface(image), (200, 100))
+            self.screen.blit(pygame.surfarray.make_surface(image), (0, 0))
 
         self.dropGroup.draw(self.screen)
         if self.frames % 100 == 0:
@@ -155,15 +165,34 @@ class Rain():
         self.groundGroup.draw(self.screen)
         self.dropGroup.update()
         pygame.sprite.spritecollide(self.ground, self.dropGroup, True)
-        draw_text(f'Vida: {player.lifePoints}', self.font,
-                  (255, 255, 255), self.screen, (0, 0), False)
+
+        self.healthGroup.update()
+        self.healthGroup.draw(self.screen)
+        WIDTH, HEIGHT = self.screen.get_size()
+        draw_text(f'Score: {score}', self.font,
+                  (255, 255, 255), self.screen, (WIDTH - 100, 30), True)
 
 
-class hpBar():
-    def __init__(self) -> None:
-        pass
+class hpBar(pygame.sprite.Sprite):
+    def __init__(self, id):
+        super().__init__()
+        self.frames = []
+        scale = 1
+        self.sprite_sheet = pygame.transform.scale(
+            pygame.image.load('assets/health2.png'), (136*scale, 60*scale))
 
-    pass
+        for i in range(2):
+            img = self.sprite_sheet.subsurface((i * 68, 0), (68, 60))
+            self.frames.append(img)
+
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (id * 68, 10)
+        self.id = id
+
+    def update(self):
+        if player.lifePoints <= self.id:
+            self.image = self.frames[1]
 
 
 def draw_text(text, font, color, surface, position, center):
