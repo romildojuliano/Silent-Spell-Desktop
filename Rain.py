@@ -105,7 +105,6 @@ class Rain():
         self.health = [hpBar(i) for i in range(player.fullLife)]
         for heart in self.health:
             self.healthGroup.add(heart)
-        self.frames = 0
         player.reset()
 
         self.hands = mp_hands.Hands(
@@ -120,7 +119,6 @@ class Rain():
 
     def update(self):
 
-        self.frames += 1
         global player
         self.screen.fill((135 , 206, 235))
 
@@ -157,8 +155,7 @@ class Rain():
             self.screen.blit(pygame.surfarray.make_surface(image), (0, 0))
 
         self.dropGroup.draw(self.screen)
-        if self.frames % 100 == 0:
-            # print(2)
+        if score < 900 and random.random() < score/1000 + 0.1:
             drop = Drop("assets/Drop3.png", self.screen)
             self.dropGroup.add(drop)
 
