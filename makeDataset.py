@@ -19,7 +19,7 @@ hands = mp_hands.Hands(
 DATA_PATH = os.path.join('MP_Data') 
 
 # Actions that we try to detect
-actions = np.array(list(string.ascii_uppercase))
+actions = np.array(string.ascii_uppercase)
 for action in actions:
     try:
         os.mkdir(os.path.join(DATA_PATH,action))
@@ -51,6 +51,7 @@ start_folder = dirmax
 
 for action in actions:
     # Loop through sequences aka videos
+    
     for sequence in range(start_folder, start_folder+no_sequences):
         # Loop through video length aka sequence length
         for frame_num in range(sequence_length):
@@ -89,6 +90,9 @@ for action in actions:
             # Break gracefully
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
+    cv2.waitKey(500)
+    cv2.putText(img, 'change letter', (120,200), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0, 255), 4, cv2.LINE_AA)
 print(time.time()-start)
 cap.release()
 cv2.destroyAllWindows()
